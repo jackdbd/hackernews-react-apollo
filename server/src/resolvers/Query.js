@@ -1,4 +1,6 @@
 async function feed(parent, args, context, info) {
+  // two 'where' conditions are specified: a link is only returned if either its
+  // url or its description contain the provided filter
   const where = args.filter
     ? {
         OR: [
