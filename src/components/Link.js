@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { DIRECTIVE } from "graphql/language/kinds";
 
 class Link extends Component {
   render() {
