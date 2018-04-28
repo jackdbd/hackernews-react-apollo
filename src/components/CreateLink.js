@@ -40,6 +40,8 @@ class CreateLink extends Component {
         url
       }
     });
+    // automatic redirect to the '/' route
+    this.props.history.push("/");
   };
 }
 
