@@ -5,7 +5,6 @@ import Link from "./Link";
 
 class LinkList extends Component {
   render() {
-    console.log(this.props.feedQuery.loading);
     if (this.props.feedQuery && this.props.feedQuery.loading) {
       return <div>Loading feed...</div>;
     }

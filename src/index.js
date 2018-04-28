@@ -8,13 +8,30 @@ import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { BrowserRouter } from "react-router-dom";
+import { ApolloLink } from "apollo-link";
+import { AUTH_TOKEN } from "./constants";
 
 // Create the HttpLink that will connect your ApolloClient instance with the
 // GraphQL API; your GraphQL server will be running on http://localhost:4000.
 const httpLink = new HttpLink({ uri: "http://localhost:4000" });
 
+// Use a middleware to authenticate all requests sent by the ApolloClient to
+// the GraphQL server
+const middlewareAuthLink = new ApolloLink((operation, forward) => {
+  const token = localStorage.getItem(AUTH_TOKEN);
+  const authorizationHeader = token ? `Bearer ${token}` : null;
+  operation.setContext({
+    headers: {
+      authorization: authorizationHeader
+    }
+  });
+  return forward(operation);
+});
+
+const httpLinkWithAuthToken = middlewareAuthLink.concat(httpLink);
+
 const client = new ApolloClient({
-  link: httpLink,
+  link: httpLinkWithAuthToken,
   cache: new InMemoryCache()
 });
 
