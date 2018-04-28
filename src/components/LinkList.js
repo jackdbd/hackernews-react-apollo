@@ -4,6 +4,11 @@ import gql from "graphql-tag";
 import Link from "./Link";
 
 class LinkList extends Component {
+  componentDidMount() {
+    this._subscribeToNewLinks();
+    this._subscribeToNewVotes();
+  }
+
   render() {
     if (this.props.feedQuery && this.props.feedQuery.loading) {
       return <div>Loading feed...</div>;
@@ -36,6 +41,87 @@ class LinkList extends Component {
     votedLink.votes = createVote.link.votes;
     // update the cache with the modified data
     store.writeQuery({ query: FEED_QUERY, data });
+  };
+
+  _subscribeToNewLinks = () => {
+    // open a websocket connection to the subscription server
+    this.props.feedQuery.subscribeToMore({
+      // 1st argument: the subscription query
+      document: gql`
+        # The actual GraphQL subscription
+        subscription {
+          newLink {
+            node {
+              id
+              url
+              description
+              createdAt
+              postedBy {
+                id
+                name
+              }
+              votes {
+                id
+                user {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `,
+      // 2nd argument: function that controls how the store should be updated with
+      // the data coming from the server after the event occurred.
+      // It works as a Redux reducer.
+      updateQuery: (previous, { subscriptionData }) => {
+        // Retrieve the new link from the received subscriptionData, merge it into
+        // the existing list of links and return the result of this operation.
+        const newAllLinks = [
+          subscriptionData.data.newLink.node,
+          ...previous.feed.links
+        ];
+        const result = {
+          ...previous,
+          feed: {
+            links: newAllLinks
+          }
+        };
+        return result;
+      }
+    });
+  };
+
+  _subscribeToNewVotes = () => {
+    this.props.feedQuery.subscribeToMore({
+      document: gql`
+        subscription {
+          newVote {
+            node {
+              id
+              link {
+                id
+                url
+                description
+                createdAt
+                postedBy {
+                  id
+                  name
+                }
+                votes {
+                  id
+                  user {
+                    id
+                  }
+                }
+              }
+              user {
+                id
+              }
+            }
+          }
+        }
+      `
+    });
   };
 }
 

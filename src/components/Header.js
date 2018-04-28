@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { withRouter } from "react-router";
 import { AUTH_TOKEN } from "../constants";
 
-console.log(AUTH_TOKEN);
+// console.log(AUTH_TOKEN);
 
 class Header extends Component {
   render() {

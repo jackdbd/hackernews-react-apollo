@@ -8,7 +8,9 @@ import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { BrowserRouter } from "react-router-dom";
-import { ApolloLink } from "apollo-link";
+import { ApolloLink, split } from "apollo-link";
+import { WebSocketLink } from "apollo-link-ws";
+import { getMainDefinition } from "apollo-utilities";
 import { AUTH_TOKEN } from "./constants";
 
 // Create the HttpLink that will connect your ApolloClient instance with the
@@ -30,8 +32,34 @@ const middlewareAuthLink = new ApolloLink((operation, forward) => {
 
 const httpLinkWithAuthToken = middlewareAuthLink.concat(httpLink);
 
+// Create the web socket link used by the GraphQL server to push data to the
+// client. The client receives data when the events he subscribed to occurr.
+const wsLink = new WebSocketLink({
+  uri: `ws://localhost:4000`, // subscriptions endpoint
+  options: {
+    reconnect: true,
+    connectionParams: {
+      authToken: localStorage.getItem(AUTH_TOKEN)
+    }
+  }
+});
+
+// Use split to route a request to a specific middleware link
+const link = split(
+  // 1st argument: a test function that returns a boolean. It is used to decide
+  // whether to route the request to the websocket link, or to the HTTP link.
+  ({ query }) => {
+    const { kind, operation } = getMainDefinition(query);
+    return kind === "OperationDefinition" && operation === "subscription";
+  },
+  // 2nd argument: the web socket (authenticated) link (an ApolloLink)
+  wsLink,
+  // 3nd argument: the HTTP (authenticated) link (an ApolloLink)
+  httpLinkWithAuthToken
+);
+
 const client = new ApolloClient({
-  link: httpLinkWithAuthToken,
+  link,
   cache: new InMemoryCache()
 });
 
