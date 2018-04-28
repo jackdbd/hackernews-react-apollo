@@ -7,7 +7,7 @@ import registerServiceWorker from "./registerServiceWorker";
 import { ApolloProvider } from "react-apollo";
 import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
-import { InMemoryCache } from "apollo-cache-memory";
+import { InMemoryCache } from "apollo-cache-inmemory";
 
 // Create the HttpLink that will connect your ApolloClient instance with the
 // GraphQL API; your GraphQL server will be running on http://localhost:4000.
@@ -21,7 +21,7 @@ const client = new ApolloClient({
 // Wrap App with the higher-order component ApolloProvider.
 // ApolloProvider gets passed the client as a prop.
 ReactDOM.render(
-  <ApolloProvider>
+  <ApolloProvider client={client}>
     <App />
   </ApolloProvider>,
   document.getElementById("root")
