@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { graphql } from "react-apollo";
+import gql from "graphql-tag";
 import { AUTH_TOKEN } from "../constants";
 import { timeDifferenceForDate } from "../utils";
 
@@ -33,8 +35,42 @@ class Link extends Component {
   }
 
   _voteForLink = async () => {
-    // TODO
+    const linkId = this.props.link.id;
+    await this.props.voteMutation({
+      variables: {
+        linkId
+      },
+      // manually update the cache (Apollo's imperative store API)
+      // 'store' is the current state of the cache
+      // 'data' is the payload of the mutation. We only need to extract 'vote'
+      // to set a new state of the cache (we can use destructuring)
+      update: (store, { data: { vote } }) => {
+        this.props.updateStoreAfterVote(store, vote, linkId);
+      }
+    });
   };
 }
 
-export default Link;
+// store mutation in a JS object
+const VOTE_MUTATION = gql`
+  # actual GraphQL mutation
+  mutation VoteMutation($linkId: ID!) {
+    vote(linkId: $linkId) {
+      id
+      link {
+        votes {
+          id
+          user {
+            id
+          }
+        }
+      }
+      user {
+        id
+      }
+    }
+  }
+`;
+
+// wrap Link component in graphql, so voteMutation is injected into the props
+export default graphql(VOTE_MUTATION, { name: "voteMutation" })(Link);

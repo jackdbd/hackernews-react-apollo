@@ -15,15 +15,32 @@ class LinkList extends Component {
     return (
       <div>
         {linksToRender.map((link, index) => (
-          <Link key={link.id} index={index} link={link} />
+          // inject _updateCacheAfterVote in child component
+          <Link
+            key={link.id}
+            updateStoreAfterVote={this._updateCacheAfterVote}
+            index={index}
+            link={link}
+          />
         ))}
       </div>
     );
   }
+
+  _updateCacheAfterVote = (store, createVote, linkId) => {
+    // read current state of the cache
+    const data = store.readQuery({ query: FEED_QUERY });
+    // retrieve the link that the user just voted
+    const votedLink = data.feed.links.find(link => link.id === linkId);
+    // reset votes to the votes that were just returned by the server
+    votedLink.votes = createVote.link.votes;
+    // update the cache with the modified data
+    store.writeQuery({ query: FEED_QUERY, data });
+  };
 }
 
 // Use the parser function gql on a GraphQL query to obtain a Javascript object.
-const FEED_QUERY = gql`
+export const FEED_QUERY = gql`
   # This is a GraphQL comment
   query FeedQuery {
     feed {
