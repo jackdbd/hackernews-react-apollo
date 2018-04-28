@@ -3,15 +3,15 @@ async function feed(parent, args, context, info) {
     ? {
         OR: [
           { url_contains: args.filter },
-          { description_contains: args.filter },
-        ],
+          { description_contains: args.filter }
+        ]
       }
-    : {}
+    : {};
 
   const queriedLinkes = await context.db.query.links(
     { where, skip: args.skip, first: args.first, orderBy: args.orderBy },
-    `{ id }`,
-  )
+    `{ id }`
+  );
 
   const countSelectionSet = `
     {
@@ -19,15 +19,18 @@ async function feed(parent, args, context, info) {
         count
       }
     }
-  `
-  const linksConnection = await context.db.query.linksConnection({}, countSelectionSet)
+  `;
+  const linksConnection = await context.db.query.linksConnection(
+    {},
+    countSelectionSet
+  );
 
   return {
     count: linksConnection.aggregate.count,
-    linkIds: queriedLinkes.map(link => link.id),
-  }
+    linkIds: queriedLinkes.map(link => link.id)
+  };
 }
 
 module.exports = {
-  feed,
-}
+  feed
+};

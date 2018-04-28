@@ -9,7 +9,7 @@ import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-memory";
 
-// Create the HttpLink that will connect your ApolloClient instance with the 
+// Create the HttpLink that will connect your ApolloClient instance with the
 // GraphQL API; your GraphQL server will be running on http://localhost:4000.
 const httpLink = new HttpLink({ uri: "http://localhost:4000" });
 
