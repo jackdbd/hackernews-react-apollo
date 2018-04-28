@@ -31,7 +31,7 @@ const FEED_QUERY = gql`
         id
         url
         description
-        # createdAt (TODO: update datamodel.graphql in the server)
+        createdAt
         postedBy {
           id
           name
