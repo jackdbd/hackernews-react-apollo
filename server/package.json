@@ -4,10 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "babel-node src/index.js",
     "dev": "npm-run-all --parallel start playground",
     "playground": "graphql playground",
-    "prisma": "prisma"
+    "prisma": "prisma",
+    "lint": "prettier --write '{,!(node_modules)/}**/*.{js,jsx}'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -16,6 +17,13 @@
     "prisma-binding": "^1.5.16"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-preset-stage-1": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
     "npm-run-all": "^4.1.2",
     "prisma": "1.6.3"
   }
